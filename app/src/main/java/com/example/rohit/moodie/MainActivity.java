@@ -74,9 +74,8 @@ public class MainActivity extends AppCompatActivity {
             bitmap=(Bitmap)data.getExtras().get("data");
             imageView.setImageBitmap(bitmap);
 
-            Uri tempUri = getImageUri(getApplicationContext(),bitmap);
 
-            Log.i("Path",getRealPathFromURI(tempUri));
+
 
 
         }

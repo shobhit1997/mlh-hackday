@@ -41,6 +41,7 @@ public class Main2Activity extends AppCompatActivity {
     MediaPlayer mediaPlayer;
     Button play,pause;
     ImageView imageView;
+    int songNo=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +49,8 @@ public class Main2Activity extends AppCompatActivity {
 
         Intent i=getIntent();
         bitmap = (Bitmap) i.getParcelableExtra("bitmap");
+        play=(Button)findViewById(R.id.button);
+        pause=(Button)findViewById(R.id.button1);
         imageView=(ImageView)findViewById(R.id.imageView1);
         imageView.setImageBitmap(bitmap);
         Vision.Builder visionBuilder = new Vision.Builder(
@@ -83,12 +86,6 @@ public class Main2Activity extends AppCompatActivity {
         });
 
 
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -102,6 +99,14 @@ public class Main2Activity extends AppCompatActivity {
                 }
             }
         });
+
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
 
     }
@@ -157,41 +162,42 @@ public class Main2Activity extends AppCompatActivity {
                 String joy=faces.get(0).getJoyLikelihood();
                 String anger=faces.get(0).getAngerLikelihood();
                 String surprise=faces.get(0).getSurpriseLikelihood();
+                songNo=0;
                 if(sorrow.equals("VERY_LIKELY"))
                 {
-                    playSong(0);
+                    songNo=0;
                 }
                 else if(joy.equals("VERY_LIKELY"))
                 {
-                    playSong(1);
+                    songNo=1;
                 }
                 else if(anger.equals("VERY_LIKELY"))
                 {
-                    playSong(2);
+                    songNo=2;
                 }
                 else if(surprise.equals("VERY_LIKELY"))
                 {
-                    playSong(3);
+                    songNo=3;
                 }
                 else if(sorrow.equals("POSSIBLE"))
                 {
-                    playSong(0);
+                    songNo=0;
                 }
                 else if(joy.equals("POSSIBLE"))
                 {
-                    playSong(1);
+                    songNo=1;
                 }
                 else if(anger.equals("POSSIBLE"))
                 {
-                    playSong(2);
+                    songNo=2;
                 }
                 else if(surprise.equals("POSSIBLE"))
                 {
-                    playSong(3);
+                    songNo=3;
                 }
                 else
                 {
-                    playSong(0);
+                    songNo=0;
                 }
 
 
@@ -204,6 +210,8 @@ public class Main2Activity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                playSong(songNo);
                 Toast.makeText(getApplicationContext(),
                         "message", Toast.LENGTH_LONG).show();
             }
