@@ -2,10 +2,16 @@ package com.example.rohit.moodie;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -32,6 +38,9 @@ public class Main2Activity extends AppCompatActivity {
 
     Vision vision;
     Bitmap bitmap;
+    MediaPlayer mediaPlayer;
+    Button play,pause;
+    ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +48,8 @@ public class Main2Activity extends AppCompatActivity {
 
         Intent i=getIntent();
         bitmap = (Bitmap) i.getParcelableExtra("bitmap");
+        imageView=(ImageView)findViewById(R.id.imageView1);
+        imageView.setImageBitmap(bitmap);
         Vision.Builder visionBuilder = new Vision.Builder(
                 new NetHttpTransport(),
                 new AndroidJsonFactory(),
@@ -48,8 +59,36 @@ public class Main2Activity extends AppCompatActivity {
                 new VisionRequestInitializer("AIzaSyBgSS7OTsuE4yr9MjRlP8tMvX9QC2Vcc1c"));
 
         vision = visionBuilder.build();
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!mediaPlayer.isPlaying())
+                {
+                    mediaPlayer.start();
+                }
+            }
+        });
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(mediaPlayer.isPlaying())
+                {
+                    mediaPlayer.pause();
+                }
 
 
+            }
+        });
+
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -63,6 +102,15 @@ public class Main2Activity extends AppCompatActivity {
                 }
             }
         });
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mediaPlayer.pause();
+        mediaPlayer.release();
     }
 
     private Image getImageEncodeImage(Bitmap bitmap) {
@@ -99,14 +147,59 @@ public class Main2Activity extends AppCompatActivity {
 
         int numberOfFaces = faces.size();
 
-        for(int i=0; i<numberOfFaces; i++) {
+//        for(int i=0; i<numberOfFaces; i++) {
+            if(numberOfFaces>0) {
+                Log.i("Joy", faces.get(0).getJoyLikelihood());
+                Log.i("Anger", faces.get(0).getAngerLikelihood());
+                Log.i("Surprise", faces.get(0).getSurpriseLikelihood());
+                Log.i("Sorrow", faces.get(0).getSorrowLikelihood());
+                String sorrow=faces.get(0).getSorrowLikelihood();
+                String joy=faces.get(0).getJoyLikelihood();
+                String anger=faces.get(0).getAngerLikelihood();
+                String surprise=faces.get(0).getSurpriseLikelihood();
+                if(sorrow.equals("VERY_LIKELY"))
+                {
+                    playSong(0);
+                }
+                else if(joy.equals("VERY_LIKELY"))
+                {
+                    playSong(1);
+                }
+                else if(anger.equals("VERY_LIKELY"))
+                {
+                    playSong(2);
+                }
+                else if(surprise.equals("VERY_LIKELY"))
+                {
+                    playSong(3);
+                }
+                else if(sorrow.equals("POSSIBLE"))
+                {
+                    playSong(0);
+                }
+                else if(joy.equals("POSSIBLE"))
+                {
+                    playSong(1);
+                }
+                else if(anger.equals("POSSIBLE"))
+                {
+                    playSong(2);
+                }
+                else if(surprise.equals("POSSIBLE"))
+                {
+                    playSong(3);
+                }
+                else
+                {
+                    playSong(0);
+                }
 
-            Log.i("Joy",faces.get(i).getJoyLikelihood());
-            Log.i("Anger",faces.get(i).getAngerLikelihood());
-            Log.i("Surprise",faces.get(i).getSurpriseLikelihood());
-            Log.i("Sorrow",faces.get(i).getSorrowLikelihood());
 
-        }
+            }
+
+
+
+//        }
 
         runOnUiThread(new Runnable() {
             @Override
@@ -117,5 +210,25 @@ public class Main2Activity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void playSong(int no)
+    {
+        int songs[]=new int[4];
+        songs[0]=R.raw.sad;
+        songs[1]=R.raw.happy;
+        songs[2]=R.raw.anger;
+        songs[3]=R.raw.surprise;
+        ArrayList<String> quotes=new ArrayList<>();
+        quotes.add("Any fool can be happy. It takes a man with real heart to make beauty out of the stuff that makes us weep.");
+        quotes.add("Think of all the beauty still left around you and be happy.");
+        quotes.add("Holding on to anger is like grasping a hot coal with the intent of throwing it at someone else; you are the one who gets burned.");
+        quotes.add("The secret to humor is surprise.");
+
+        TextView tx=(TextView)findViewById(R.id.editText);
+        tx.setText(quotes.get(no));
+
+        mediaPlayer=MediaPlayer.create(this,songs[no]);
+        mediaPlayer.start();
     }
 }
